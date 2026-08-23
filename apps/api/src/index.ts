@@ -9,5 +9,5 @@ const port = 3000
 
 console.log(port)
 app.listen(port, ()=> {
-    console.log("RUNNING...")
+    console.log(`RUNNING... on the :  http://localhost:${port}`)
 })

@@ -28,6 +28,7 @@ import {
   verifyRefreshToken,
 } from "./auth.utils";
 import type { RegisterInput, LoginInput, RefreshInput } from "./auth.schema";
+import { AppError } from "./auth.types";
 
 export const registerUser = async (input: RegisterInput) => {
   const hashed = await hashPassword(input.password);
@@ -37,8 +38,8 @@ export const registerUser = async (input: RegisterInput) => {
 export const loginUser = async (input: LoginInput) => {
   const user = await prisma.user.findUnique({ where: { email: input.email } });
   if (!user || !(await comparePassword(input.password, user.password))) {
-    throw new Error("Invalid credentials");
-  }
+  throw new AppError("Invalid credentials", 401);
+}
 
   const accessToken = signAccessToken({ userId: user.id });
   const refreshToken = signRefreshToken({ userId: user.id });

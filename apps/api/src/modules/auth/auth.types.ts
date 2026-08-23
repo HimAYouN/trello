@@ -34,6 +34,13 @@ declare global {
   }
 }
 
+// a small custom error class
+export class AppError extends Error {
+  constructor(message: string, public statusCode: number) {
+    super(message);
+  }
+}
+
 // re-export nothing needed here since the above is a global augmentation,
 // but this export {} keeps the file treated as a module rather than a script
 export {};

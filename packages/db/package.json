@@ -7,7 +7,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./client": "./generated/client/index.js"
+    "./client": "./generated/client/index.ts"
   },
   "scripts": {
     "generate": "prisma generate",

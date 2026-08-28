@@ -2,12 +2,21 @@
 import { execSync } from "child_process";
 import { beforeAll, afterAll } from "vitest";
 import { prisma } from "@repo/db";
+import { env } from "@repo/env";
 
 beforeAll(() => {
-  // pushes schema to the test DB before running (safe, non-destructive to dev DB)
-  execSync("pnpm --filter @repo/db exec prisma db push --skip-generate", {
-    env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL },
-  });
+  console.log("TEST DATABASE:", env.TEST_DATABASE_URL);
+
+  execSync(
+    "pnpm --filter @repo/db exec prisma --version",
+    {
+      env: {
+        ...process.env,
+        DATABASE_URL: env.TEST_DATABASE_URL,
+      },
+      stdio: "inherit",
+    }
+  );
 });
 
 afterAll(async () => {

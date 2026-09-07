@@ -3,16 +3,16 @@ import { loginService, registerService } from "./auth.services.ts";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password || !name) {
       return res.status(400).json({
         success: false,
-        message: "Email and password are required",
+        message: "Name, Email and password are required",
       });
     }
 
-    const result = await registerService(email, password);
+    const result = await registerService(email, password, name);
 
     return res.status(200).json({
       success: true,
@@ -20,12 +20,12 @@ export const register = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("Register error:", error);
 
     return res.status(401).json({
       success: false,
       message:
-        error instanceof Error ? error.message : "Invalid email or password",
+        error instanceof Error ? error.message : "Something went wrong while registering user",
     });
   }
 };

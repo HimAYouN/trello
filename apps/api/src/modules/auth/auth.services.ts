@@ -5,7 +5,8 @@ import { prisma } from "@repo/db"
 
 export const registerService = async (
   email: string,
-  password: string
+  password: string,
+  name: string
 ) => {
   // Check if user already exists
   const existingUser = await prisma.user.findUnique({
@@ -24,6 +25,7 @@ export const registerService = async (
   // Create user
   const user = await prisma.user.create({
     data: {
+      name,
       email,
       password: hashedPassword,
     },

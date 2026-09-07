@@ -1,27 +1,60 @@
-import type { Request, Response } from "express";
-import { registerSchema, loginSchema, refreshSchema } from "./auth.schema";
-import { registerUser, loginUser, refreshTokens, logoutUser } from "./auth.service";
+import { Request, Response } from "express";
+import { loginService, registerService } from "./auth.services.ts";
 
 export const register = async (req: Request, res: Response) => {
-  const parsed = registerSchema.parse(req.body);
-  const user = await registerUser(parsed);
-  res.status(201).json({ user });
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
+
+    const result = await registerService(email, password);
+
+    return res.status(200).json({
+      success: true,
+      message: "Register successful",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+
+    return res.status(401).json({
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Invalid email or password",
+    });
+  }
 };
 
 export const login = async (req: Request, res: Response) => {
-  const parsed = loginSchema.parse(req.body);
-  const { user, accessToken, refreshToken } = await loginUser(parsed);
-  res.json({ user, accessToken, refreshToken });
-};
+  try {
+    const { email, password } = req.body;
 
-export const refresh = async (req: Request, res: Response) => {
-  const parsed = refreshSchema.parse(req.body);
-  const { accessToken } = await refreshTokens(parsed);
-  res.json({ accessToken });
-};
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
 
-export const logout = async (req: Request, res: Response) => {
-  const { refreshToken } = req.body;
-  await logoutUser(refreshToken);
-  res.status(204).send();
+    const result = await loginService(email, password);
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+
+    return res.status(401).json({
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Invalid email or password",
+    });
+  }
 };

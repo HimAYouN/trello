@@ -1,14 +1,14 @@
 import cors from "cors";
 import express from "express"
 import cookieParser from "cookie-parser";
-import authRouter from './modules/auth/auth.routes.ts'
+import authRouter from './modules/auth/auth.route.ts'
 import { env } from "@repo/env";
 
 const app = express()
 
 
 app.use(cors({
-  origin: env.CLIENT_URL, // e.g. "http://localhost:3000"
+  origin: env.CLIENT_URL, 
   credentials: true, // required if you're sending cookies (refresh token?)
 }));
 

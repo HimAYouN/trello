@@ -25,6 +25,7 @@ const envSchema = z.object({
   WS_PORT: z.coerce.number().optional(),
   JWT_ACCESS_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
+  CLIENT_URL: z.string(),
 });
 
 export const env = envSchema.parse(process.env);

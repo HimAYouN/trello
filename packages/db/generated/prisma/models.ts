@@ -9,6 +9,9 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
-export type * from './models/Post'
-export type * from './models/RefreshToken'
+export type * from './models/Organisation'
+export type * from './models/Membership'
+export type * from './models/Board'
+export type * from './models/Section'
+export type * from './models/Issue'
 export type * from './commonInputTypes'

@@ -1,159 +1,318 @@
-# Turborepo starter
+# Trello-style project management app
 
-This Turborepo starter is maintained by the Turborepo core team.
+This repository is a monorepo for a Trello-inspired task and team collaboration application. The current implementation is primarily a backend API built with Express, Prisma, and PostgreSQL, and it models the main entities needed for a Kanban-style workflow: users, organisations, memberships, boards, sections, and issues.
 
-## Using this example
+The project is intended to evolve into a collaborative board system similar to Trello, where teams can create organisations, manage members, and organize work into boards and cards.
 
-Run the following command:
+## Overview
 
-```sh
-npx create-turbo@latest
+### Stack
+
+- Node.js + TypeScript
+- Express.js
+- PostgreSQL via Prisma ORM
+- Turbo repo for monorepo orchestration
+- JWT-based authentication
+- CORS and cookie parsing for browser clients
+
+### Project structure
+
+```text
+.
+├── apps/
+│   ├── api/
+│   │   ├── src/
+│   │   └── tests/
+│   ├── client/
+│   └── ws/
+├── packages/
+│   ├── db/
+│   ├── env/
+│   ├── eslint-config/
+│   ├── typescript-config/
+│   └── ui/
+├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── turbo.json
+└── README.md
 ```
 
-## What's inside?
+## Functionalities implemented
 
-This Turborepo includes the following packages/apps:
+At the moment, the app includes the following working backend capabilities:
 
-### Apps and Packages
+- User registration
+- User login
+- Password hashing with bcrypt
+- JWT token generation on successful login
+- Basic app bootstrap with Express
+- PostgreSQL data layer through Prisma
+- Organisation creation and ownership validation logic
+- Data model for boards, sections, and issues
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## Core domain model
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+The Prisma schema defines a Trello-style entity structure:
 
-### Utilities
+### User
+- id
+- name
+- email
+- password
+- refreshToken
+- memberships
+- owned organisations
 
-This Turborepo has some additional tools already setup for you:
+### Organisation
+- id
+- name
+- description
+- ownerId
+- memberships
+- boards
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### Membership
+- id
+- userId
+- organisationId
+- role (`OWNER`, `ADMIN`, `MEMBER`)
 
-### Build
+### Board
+- id
+- title
+- organisationId
+- sections
+- issues
 
-To build all apps and packages, run the following command:
+### Section
+- id
+- title
+- boardId
+- issues
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+### Issue
+- id
+- title
+- description
+- boardId
+- sectionId
 
-```sh
-cd my-turborepo
-turbo build
+This structure matches the expected workflow for a project board app: an organisation owns boards, a board contains sections, and each section contains issues/tasks.
+
+## API endpoints
+
+The active API is mounted in the Express app from `apps/api/src/app.ts`.
+
+### Server base
+
+```http
+GET /
 ```
 
-Without global `turbo`, use your package manager:
+Returns a simple text response:
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+```json
+"This is the home page..."
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### Authentication routes
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+#### Register a user
 
-```sh
-turbo build --filter=docs
+```http
+POST /user/register
+Content-Type: application/json
 ```
 
-Without global `turbo`:
+Request body:
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "secret123"
+}
 ```
 
-### Develop
+Example successful response:
 
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```json
+{
+  "success": true,
+  "message": "Register successful",
+  "data": {
+    "user": {
+      "id": "cuid",
+      "email": "jane@example.com"
+    }
+  }
+}
 ```
 
-Without global `turbo`, use your package manager:
+#### Log in a user
 
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
+```http
+POST /user/login
+Content-Type: application/json
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Request body:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
+```json
+{
+  "email": "jane@example.com",
+  "password": "secret123"
+}
 ```
 
-Without global `turbo`:
+Example successful response:
 
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": {
+      "id": "cuid",
+      "email": "jane@example.com"
+    },
+    "token": "jwt-token"
+  }
+}
 ```
 
-### Remote Caching
+### Organisation routes (defined but not mounted yet)
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+The organisation module contains route definitions for the following endpoints:
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
+```http
+POST /organisation/create-organisation
+DELETE /organisation/delete-organisation/:id
 ```
 
-Without global `turbo`, use your package manager:
+Those are implemented in the organisation controller and service layer, but they are not currently connected to the main Express app in `app.ts`. The controller expects an authenticated user from `req.user.id` and validates ownership before deletion.
 
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
+## Authentication behaviour
+
+The current auth implementation does the following:
+
+- Checks whether the supplied email already exists
+- Hashes the user password before saving it
+- Verifies the password using bcrypt during login
+- Generates a JWT using the user ID
+- Returns the token in the login response payload
+
+Important note: the service currently uses `process.env.JWT_SECRET`, while the environment validation schema also expects `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET`. For local development, it is safer to define both forms in the environment to avoid mismatches.
+
+## Database and migrations
+
+The app uses Prisma with a PostgreSQL database. The schema is stored in:
+
+- `packages/db/prisma/schema.prisma`
+
+Migrations are stored in:
+
+- `packages/db/prisma/migrations/`
+
+Common commands:
+
+```bash
+cd packages/db
+pnpm prisma generate
+pnpm prisma migrate dev
+pnpm prisma studio
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## Local setup
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+### 1) Install dependencies
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
+```bash
+cd /home/huma/PROGRAMS/trello
+pnpm install
 ```
 
-Without global `turbo`:
+### 2) Configure environment variables
 
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
+Create a `.env` file in the project root or configure the environment with variables like:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/trello
+TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/trello_test
+PORT=3002
+NODE_ENV=development
+CLIENT_URL=http://localhost:3000
+JWT_SECRET=your-jwt-secret
+JWT_ACCESS_SECRET=your-jwt-secret
+JWT_REFRESH_SECRET=your-refresh-secret
 ```
 
-## Useful Links
+### 3) Run database migrations
 
-Learn more about the power of Turborepo:
+```bash
+cd packages/db
+pnpm prisma migrate dev
+```
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+### 4) Start the API
+
+```bash
+cd apps/api
+pnpm dev
+```
+
+The server listens on the port configured by `PORT` (default in the environment schema is `3000`, while the app’s current startup code uses the environment value or `3002`).
+
+### 5) Run tests
+
+```bash
+cd apps/api
+pnpm test
+```
+
+## Monorepo commands
+
+From the repository root:
+
+```bash
+pnpm dev
+pnpm build
+pnpm lint
+pnpm check-types
+```
+
+## Current status and gaps
+
+This project is a functional backend foundation rather than a complete finished product.
+
+### Already present
+
+- Authentication flow
+- Prisma-based data model
+- Organisation ownership validations
+- Trello-like schema design
+- API bootstrapping and routing structure
+
+### Missing or incomplete
+
+- The app does not yet mount the organisation routes in the main server
+- No auth middleware is currently wired for protected routes
+- Board, section, issue, membership, and comment modules are not fully implemented in the API
+- The client app and websocket app are not yet developed
+- Frontend UI and user flows are still missing
+
+## Intended product direction
+
+The data model and route structure point toward a collaborative Kanban board application with:
+
+- user accounts
+- team organisations
+- board creation and management
+- section-based columns
+- issue/card management
+- roles and permissions for organisation members
+
+## Summary
+
+This repository is best described as a Trello-inspired backend foundation. It already has the correct architecture and most of the core data model needed for a project board app, but it still requires additional route wiring, middleware, and frontend implementation to become a complete application.

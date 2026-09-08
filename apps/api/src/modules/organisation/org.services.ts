@@ -17,33 +17,58 @@ export const createOrgService = async (
   }
 
   const org = await prisma.organisation.create({
-  data: {
-    name,
-    description,
-    ownerId: userId,
-  },
-});
+    data: {
+      name,
+      description,
+      ownerId: userId,
+    },
+  });
 
+  
   return {
     organisation: {
       id: org.id,
       name: org.name,
-      description: org.description
-    }
+      description: org.description,
+    },
   };
 };
 
-export const deleteOrgService = async (id: string, confirmation: string, userId: string) => {
+export const deleteOrgService = async (
+  id: string,
+  confirmation: string,
+  userId: string,
+) => {
   const organisation = await prisma.organisation.findUnique({
     where: { id },
-  })
+  });
 
   if (!organisation) {
-    throw new Error('Organisation not found')
+    throw new Error("Organisation not found");
   }
 
   if (organisation.ownerId !== userId) {
-    throw new Error('Only the owner can delete this organisation')
+    throw new Error("Only the owner can delete this organisation");
   }
+};
+
+
+//TODO: Later 
+export const inviteService = async (
+  id: string,
+  email: string,
+  userId: string,
+) => {
+  const organisation = await prisma.organisation.findFirst({ where: { id } });
+  const user = await prisma.user.findFirst({where:{email}})
+  const admin = await prisma.user.findFirst({where: {id: userId}})
+
+
 
 };
+
+export const acceptService = async (
+  id: string,
+  email: string,
+  userId: string,
+) => {};

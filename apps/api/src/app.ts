@@ -1,8 +1,10 @@
 import cors from "cors";
 import express from "express"
 import cookieParser from "cookie-parser";
-import authRouter from './modules/auth/auth.route.ts'
 import { env } from "@repo/env";
+
+
+
 
 const app = express()
 
@@ -22,6 +24,11 @@ app.get('/', (_, res)=>{
     res.send("This is the home page...")
 })
 
-app.use('/user', authRouter)
+
+
+import authRouter from './modules/auth/auth.route.ts'
+import orgRouter from './modules/organisation/org.route.ts'
+app.use('/auth', authRouter)
+app.use('/', orgRouter)
 
 export {app};

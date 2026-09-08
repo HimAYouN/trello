@@ -2,6 +2,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "@repo/db"
+import { env } from "@repo/env";
 
 export const registerService = async (
   email: string,
@@ -70,7 +71,7 @@ export const loginService = async (
     {
       userId: user.id,
     },
-    process.env.JWT_SECRET!,
+      env.JWT_SECRET!,
     {
       expiresIn: "7d",
     }

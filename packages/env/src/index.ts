@@ -23,6 +23,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   WS_PORT: z.coerce.number().optional(),
+  JWT_SECRET: z.string(),
   JWT_ACCESS_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
   CLIENT_URL: z.string(),

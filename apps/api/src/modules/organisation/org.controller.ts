@@ -35,7 +35,7 @@ export const createOrganisation = async (req: Request, res: Response) => {
 
 export const deleteOrganisation = async (req: Request, res: Response) => {
   try {
-    const { orgId } = req.params.id;
+    const orgId = req.params.id;
     const { confirmation } = req.body;
     const userId = req.user.id;
 

@@ -5,8 +5,11 @@ import { deleteSection, getSection, postSection } from "./section.controller";
 
 const router = Router();
 
-router.post("/section", postSection);
-router.get("/section", getSection)
+router.post("/:boardId/section", postSection);
+router.get("/:boardId/section", getSection)
 router.delete("/section/:id", deleteSection)
+
+router.put("/section/:sectionId", putSection)
+
 
 export default router;

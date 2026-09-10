@@ -28,7 +28,14 @@ app.get('/', (_, res)=>{
 
 import authRouter from './modules/auth/auth.route.ts'
 import orgRouter from './modules/organisation/org.route.ts'
+import boardRouter from './modules/board/board.route.ts'
+import issueRouter from './modules/issue/issue.route.ts'
+import sectionRouter from './modules/section/section.route.ts'
 app.use('/auth', authRouter)
 app.use('/', orgRouter)
+app.use('/', boardRouter)
+app.use('/', issueRouter)
+app.use('/', sectionRouter)
+// app.use('/', userRouter)
 
 export {app};

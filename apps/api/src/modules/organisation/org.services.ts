@@ -13,7 +13,7 @@ export const createOrgService = async (
   });
 
   if (existingOrganisation) {
-    throw new Error("User already exists");
+    throw new Error("Orgaisation already exists");
   }
 
   const org = await prisma.organisation.create({

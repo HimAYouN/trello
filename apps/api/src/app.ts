@@ -31,7 +31,17 @@ import orgRouter from './modules/organisation/org.route.ts'
 import boardRouter from './modules/board/board.route.ts'
 import issueRouter from './modules/issue/issue.route.ts'
 import sectionRouter from './modules/section/section.route.ts'
+import { authenticate } from "./modules/auth/auth.middleware.ts";
+
+app.use('/api/v1/health', (_, res)=>{
+  res.status(200).json({
+    health: "GOOD", 
+    message: " Server is working . . ."
+  }) 
+})
 app.use('/auth', authRouter)
+
+app.use(authenticate)
 app.use('/', orgRouter)
 app.use('/', boardRouter)
 app.use('/', issueRouter)

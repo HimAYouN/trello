@@ -4,12 +4,19 @@ import { createOrgService, deleteOrgService, inviteService } from "./org.service
 export const createOrganisation = async (req: Request, res: Response) => {
   try {
     const { name, description } = req.body;
-    const userId = req.user.id;
+    // console.log(req.user.userId)
+    const userId = req.user.userId;
 
-    if (!name || !description || !userId) {
+    if (!name || !description ) {
       return res.status(400).json({
         success: false,
-        message: "UserId, Name and description are required",
+        message: "Name and description are required",
+      });
+    }
+    if(!userId){
+      return res.status(400).json({
+        success: false,
+        message: "UserId is required",
       });
     }
 

@@ -9,7 +9,7 @@ router.post("/:boardId/section", postSection);
 router.get("/:boardId/section", getSection)
 router.delete("/section/:id", deleteSection)
 
-router.put("/section/:sectionId", putSection)
+// router.put("/section/:sectionId", putSection)
 
 
 export default router;

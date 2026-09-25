@@ -22,7 +22,7 @@ describe('POST /organisation', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({ name: 'Acme Inc', description: 'A test org' });
 
-    console.log(res.body.data.organisation)
+    // console.log(res.body.data.organisation)
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);

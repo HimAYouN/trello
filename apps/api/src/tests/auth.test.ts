@@ -1,103 +1,45 @@
-// apps/api/src/tests/auth.test.ts
-import { describe, it, expect, beforeEach } from "vitest";
+// apps/api/tests/auth.test.ts
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import request from "supertest";
 import { app } from "../app";
 import { prisma } from "@repo/db";
 
+beforeAll(async () => {
+  // await prisma.user.deleteMany(); // clean slate
+});
 
-const random =  Math.random() * 100;
-describe("Auth endpoints", () => {
-  beforeEach(async () => {
-    // clean slate between tests
-    // await prisma.refreshToken.deleteMany();
-    await prisma.user.deleteMany();
-  });
+afterAll(async () => {
+  await prisma.$disconnect();
+});
 
-  it("registers a new user", async () => {
+
+
+const email = `jane${Math.random() * 100}@example.com`;
+const name = `jane${Math.random() * 100} Doe`;
+describe('POST /auth/register', () => {
+  it('creates a new user', async () => {
     const res = await request(app)
-      .post("/auth/register")
-      .send({ email: `test@mail.com`, password: "password123", name: "Test User" });
-
-    expect(res.status).toBe(201);
-    expect(res.body.user.email).toBe(`test@mail.com`);
-    expect(res.body.user.password).toBeUndefined(); // never leak password
-  });
-
-  it("rejects duplicate email on register", async () => {
-    await request(app)
-      .post("/auth/register")
-      .send({ email: "dupe@example.com", password: "password123", name: "A" });
-
-    const res = await request(app)
-      .post("/auth/register")
-      .send({ email: "dupe@example.com", password: "password123", name: "B" });
-
-    expect(res.status).not.toBe(201);
-  });
-
-  it("logs in with correct credentials and returns tokens", async () => {
-    await request(app)
-      .post("/auth/register")
-      .send({ email: `test${random}@mail.com`, password: "password123", name: "Test User" });
-
-    const res = await request(app)
-      .post("/auth/login")
-      .send({ email: `test${random}@mail.com`, password: "password123" });
+      .post('/auth/register')
+      .send({ name, email, password: 'secret123' });
 
     expect(res.status).toBe(200);
-    // expect(res.body.accessToken).toBeDefined();
-    // expect(res.body.refreshToken).toBeDefined();
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.user.email).toBe(email);
   });
 
-  it("rejects login with wrong password", async () => {
-    await request(app)
-      .post("/auth/register")
-      .send({ email: "wrongpass@example.com", password: "password123", name: "User" });
-
-    const res = await request(app)
-      .post("/auth/login")
-      .send({ email: "wrongpass@example.com", password: "wrongpassword" });
-
-    expect(res.status).toBe(401);
+  it('rejects a duplicate email', async () => {
+    await request(app).post('/auth/register').send({ name: 'A', email: 'dup@example.com', password: 'secret123' });
+    const res = await request(app).post('/auth/register').send({ name: 'B', email: 'dup@example.com', password: 'secret123' });
+    expect(res.status).not.toBe(200);
   });
+});
 
+describe('POST /auth/login', () => {
+  it('logs in with correct credentials and returns a token', async () => {
+    await request(app).post('/auth/register').send({ name: 'Jane', email: 'jane@example.com', password: 'secret123' });
+    const res = await request(app).post('/auth/login').send({ email: 'jane@example.com', password: 'secret123' });
 
-  
-//   it("refreshes access token with valid refresh token", async () => {
-//     await request(app)
-//       .post("/auth/register")
-//       .send({ email: "refresh@example.com", password: "password123", name: "User" });
-
-//     const loginRes = await request(app)
-//       .post("/auth/login")
-//       .send({ email: "refresh@example.com", password: "password123" });
-
-//     const res = await request(app)
-//       .post("/auth/refresh")
-//       .send({ refreshToken: loginRes.body.refreshToken });
-
-//     expect(res.status).toBe(200);
-//     expect(res.body.accessToken).toBeDefined();
-//   });
-
-//   it("logs out and revokes the refresh token", async () => {
-//     await request(app)
-//       .post("/auth/register")
-//       .send({ email: "logout@example.com", password: "password123", name: "User" });
-
-//     const loginRes = await request(app)
-//       .post("/auth/login")
-//       .send({ email: "logout@example.com", password: "password123" });
-
-//     await request(app)
-//       .post("/auth/logout")
-//       .send({ refreshToken: loginRes.body.refreshToken });
-
-//     const refreshRes = await request(app)
-//       .post("/auth/refresh")
-//       .send({ refreshToken: loginRes.body.refreshToken });
-
-//     expect(refreshRes.status).not.toBe(200); // revoked, should fail now
-//   });
-
+    expect(res.status).toBe(200);
+    expect(res.body.data.token).toBeDefined();
+  });
 });

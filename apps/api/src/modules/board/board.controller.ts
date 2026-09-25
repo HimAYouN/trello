@@ -6,16 +6,15 @@ import {
   getBoardsService,
 } from "./board.services";
 
-
 export const createBoard = async (req: Request, res: Response) => {
   try {
     const { title } = req.body;
-    const { organisationId } = req.params.organisationId;
+    const { organisationId } = req.params;
 
     if (!title || !organisationId) {
       return res.status(400).json({
         success: false,
-        message: "Title and organisationId is required",
+        message: "Title and organisationId are required",
       });
     }
 
@@ -34,21 +33,22 @@ export const createBoard = async (req: Request, res: Response) => {
       message:
         error instanceof Error
           ? error.message
-          : "Something went wrong while Creating board",
+          : "Something went wrong while creating board",
     });
   }
 };
 
-
 export const deleteBoard = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params.id;
+    const { id } = req.params;
+
     if (!id) {
       return res.status(400).json({
         success: false,
         message: "Id is required",
       });
     }
+
     const result = await deleteBoardService(id);
 
     return res.status(200).json({
@@ -64,22 +64,24 @@ export const deleteBoard = async (req: Request, res: Response) => {
       message:
         error instanceof Error
           ? error.message
-          : "Something went wrong while Deleting the board",
+          : "Something went wrong while deleting the board",
     });
   }
 };
 
-
 export const boards = async (req: Request, res: Response) => {
   try {
-    const { organisationId } = req.params.organisationId;
+    const { organisationId } = req.params;
+
     if (!organisationId) {
       return res.status(400).json({
         success: false,
         message: "Organisation is required",
       });
     }
+
     const result = await getBoardsService(organisationId);
+
     return res.status(200).json({
       success: true,
       message: "Boards fetched successfully",
@@ -93,15 +95,15 @@ export const boards = async (req: Request, res: Response) => {
       message:
         error instanceof Error
           ? error.message
-          : "Something went wrong while Fetching all boards",
+          : "Something went wrong while fetching all boards",
     });
   }
 };
 
-
 export const board = async (req: Request, res: Response) => {
   try {
-    const {id} = req.params.id
+    const { id } = req.params;
+
     if (!id) {
       return res.status(400).json({
         success: false,
@@ -109,14 +111,13 @@ export const board = async (req: Request, res: Response) => {
       });
     }
 
-    const result = await getBoardService(id)
+    const result = await getBoardService(id);
 
     return res.status(200).json({
       success: true,
-      message: "Boards fetched successfully",
+      message: "Board fetched successfully",
       data: result,
     });
-
   } catch (error) {
     console.error("Get board Error:", error);
 
@@ -125,10 +126,9 @@ export const board = async (req: Request, res: Response) => {
       message:
         error instanceof Error
           ? error.message
-          : "Something went wrong while Fetching a board",
+          : "Something went wrong while fetching a board",
     });
   }
 };
-
 
 export const editBoard = async (req: Request, res: Response) => {};

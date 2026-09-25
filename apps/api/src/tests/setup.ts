@@ -1,24 +1,11 @@
-// apps/api/src/tests/setup.ts
-import { execSync } from "child_process";
-import { beforeAll, afterAll } from "vitest";
-import { prisma } from "@repo/db";
-import { env } from "@repo/env";
+import { config } from 'dotenv';
+import path from 'path';
 
-beforeAll(() => {
-  console.log("TEST DATABASE:", env.TEST_DATABASE_URL);
+config({ path: path.resolve(__dirname, '../../../../.env'), override: true });
 
-  execSync(
-    "pnpm --filter @repo/db exec prisma --version",
-    {
-      env: {
-        ...process.env,
-        DATABASE_URL: env.TEST_DATABASE_URL,
-      },
-      stdio: "inherit",
-    }
-  );
-});
-
-afterAll(async () => {
-  await prisma.$disconnect();
-});
+const dbUrl = process.env.TEST_DATABASE_URL ?? '';
+// if (!dbUrl.includes('test') && !dbUrl.includes('trello_test')) {
+//   throw new Error(
+//     `Refusing to run tests: DATABASE_URL does not look like a test database (${dbUrl}). Check .env.`
+//   );
+// }

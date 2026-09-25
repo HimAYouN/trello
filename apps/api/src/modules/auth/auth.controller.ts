@@ -3,6 +3,7 @@ import { loginService, registerService } from "./auth.services.ts";
 
 export const register = async (req: Request, res: Response) => {
   try {
+
     const { email, password, name } = req.body;
 
     if (!email || !password || !name) {
@@ -14,7 +15,7 @@ export const register = async (req: Request, res: Response) => {
 
     const result = await registerService(email, password, name);
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       message: "Register successful",
       data: result,

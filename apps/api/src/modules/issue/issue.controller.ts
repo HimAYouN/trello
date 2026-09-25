@@ -1,28 +1,34 @@
 import { Request, Response } from "express";
-import { deleteIssueService, getIssueService, getIssuesService, postIssueSerivce } from "./issue.services";
+import {
+  deleteIssueService,
+  getIssueService,
+  getIssuesService,
+  postIssueService,
+} from "./issue.services";
 
 export const postIssue = async (req: Request, res: Response) => {
   try {
-    const { sectionId } = req.params.sectionId;
-    const { title, desc } = req.body;
+    const { sectionId } = req.params;
+    const { title, desc, description } = req.body;
+    const issueDescription = desc ?? description ?? "";
 
     if (!sectionId) {
       return res.status(400).json({
         success: false,
-        message: "section Id is required",
+        message: "Section Id is required",
       });
     }
+
     if (!title) {
       return res.status(400).json({
         success: false,
-
         message: "Title is required",
       });
     }
 
-    const result = await postIssueSerivce(sectionId, title, desc);
+    const result = await postIssueService(sectionId, title, issueDescription);
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       message: "Issue created successfully",
       data: result,
@@ -42,18 +48,18 @@ export const postIssue = async (req: Request, res: Response) => {
 
 export const getIssues = async (req: Request, res: Response) => {
   try {
-    const  {sectionId}  = req.params.sectionId;
+    const { sectionId } = req.params;
 
     if (!sectionId) {
       return res.status(400).json({
         success: false,
-        message: "section Id is required",
+        message: "Section Id is required",
       });
     }
 
     const result = await getIssuesService(sectionId);
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       message: "Issues fetched successfully",
       data: result,
@@ -66,14 +72,15 @@ export const getIssues = async (req: Request, res: Response) => {
       message:
         error instanceof Error
           ? error.message
-          : "Something went wrong while fetching the  issues",
+          : "Something went wrong while fetching the issues",
     });
   }
 };
 
 export const getIssue = async (req: Request, res: Response) => {
   try {
-    const {issueId} = req.params.issueId
+    const { issueId } = req.params;
+
     if (!issueId) {
       return res.status(400).json({
         success: false,
@@ -81,16 +88,13 @@ export const getIssue = async (req: Request, res: Response) => {
       });
     }
 
-    const result = await getIssueService(issueId)
+    const result = await getIssueService(issueId);
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       message: "Issue fetched successfully",
       data: result,
     });
-
-
-    
   } catch (error) {
     console.error("getIssue error:", error);
 
@@ -104,10 +108,10 @@ export const getIssue = async (req: Request, res: Response) => {
   }
 };
 
-
 export const deleteIssue = async (req: Request, res: Response) => {
   try {
-    const {issueId} = req.params.issueId
+    const { issueId } = req.params;
+
     if (!issueId) {
       return res.status(400).json({
         success: false,
@@ -115,16 +119,13 @@ export const deleteIssue = async (req: Request, res: Response) => {
       });
     }
 
-    const result = await deleteIssueService(issueId)
+    const result = await deleteIssueService(issueId);
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       message: "Issue deleted successfully",
       data: result,
     });
-
-
-    
   } catch (error) {
     console.error("deleteIssue error:", error);
 

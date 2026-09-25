@@ -44,8 +44,14 @@ app.use('/auth', authRouter)
 app.use(authenticate)
 app.use('/', orgRouter)
 app.use('/', boardRouter)
+// app.use('/test', boardRouter)
 app.use('/', issueRouter)
 app.use('/', sectionRouter)
 // app.use('/', userRouter)
 
 export {app};
+
+
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(process.env.PORT, () => console.log('listening'));
+}

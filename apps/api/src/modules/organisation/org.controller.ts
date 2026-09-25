@@ -1,30 +1,35 @@
 import { Request, Response } from "express";
-import { createOrgService, deleteOrgService, inviteService } from "./org.services";
+import {
+  acceptService,
+  createOrgService,
+  deleteOrgService,
+  inviteService,
+} from "./org.services";
 
 export const createOrganisation = async (req: Request, res: Response) => {
   try {
     const { name, description } = req.body;
-    // console.log(req.user.userId)
-    const userId = req.user.userId;
+    const id = req.user?.id;
 
-    if (!name || !description ) {
+    if (!name || !description) {
       return res.status(400).json({
         success: false,
         message: "Name and description are required",
       });
     }
-    if(!userId){
+
+    if (!id) {
       return res.status(400).json({
         success: false,
         message: "UserId is required",
       });
     }
 
-    const result = await createOrgService(name, description, userId);
+    const result = await createOrgService(name, description, id);
 
     return res.status(200).json({
       success: true,
-      message: "Organisation created successful",
+      message: "Organisation created successfully",
       data: result,
     });
   } catch (error) {
@@ -35,18 +40,18 @@ export const createOrganisation = async (req: Request, res: Response) => {
       message:
         error instanceof Error
           ? error.message
-          : "Something went wrong while Creating Organisation",
+          : "Something went wrong while creating organisation",
     });
   }
 };
 
 export const deleteOrganisation = async (req: Request, res: Response) => {
   try {
-    const {id} = req.params.id;
+    const { id } = req.params;
     const { confirmation } = req.body;
-    const userId = req.user.id;
+    const userId = req.user?.id;
 
-    if (!orgId || !confirmation || !userId) {
+    if (!id || confirmation === undefined || !userId) {
       return res.status(400).json({
         success: false,
         message: "UserId, orgId and confirmation are required",
@@ -54,9 +59,10 @@ export const deleteOrganisation = async (req: Request, res: Response) => {
     }
 
     const result = await deleteOrgService(id, confirmation, userId);
+
     return res.status(200).json({
       success: true,
-      message: "Organisation created successful",
+      message: "Organisation deleted successfully",
       data: result,
     });
   } catch (error) {
@@ -67,22 +73,21 @@ export const deleteOrganisation = async (req: Request, res: Response) => {
       message:
         error instanceof Error
           ? error.message
-          : "Something went wrong while deleting Organisation",
+          : "Something went wrong while deleting organisation",
     });
   }
 };
 
-
 export const inviteUser = async (req: Request, res: Response) => {
   try {
-    const {organisationId} = req.params.organisationId;
+    const { organisationId } = req.params;
     const { email } = req.body;
-    const userId = req.user.id;
+    const userId = req.user?.id;
 
-    if (!orgId || !email || !userId) {
+    if (!organisationId || !email || !userId) {
       return res.status(400).json({
         success: false,
-        message: "UserId, orgId and confirmation are required",
+        message: "UserId, orgId and email are required",
       });
     }
 
@@ -90,10 +95,9 @@ export const inviteUser = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: "User Invited to Organisation.",
+      message: "User invited to organisation.",
       data: result,
     });
-
   } catch (error) {
     console.error("Invite to Organisation error:", error);
 
@@ -102,29 +106,29 @@ export const inviteUser = async (req: Request, res: Response) => {
       message:
         error instanceof Error
           ? error.message
-          : "Something went wrong while inviting user to Organisation",
+          : "Something went wrong while inviting user to organisation",
     });
   }
 };
 
-//TODO: NEED TO FIX THIS .......................................................................
 export const acceptOrganisation = async (req: Request, res: Response) => {
   try {
     const orgId = req.params.id;
     const { confirmation } = req.body;
-    const userId = req.user.id;
+    const userId = req.user?.id;
 
-    if (!orgId || !confirmation || !userId) {
+    if (!orgId || confirmation === undefined || !userId) {
       return res.status(400).json({
         success: false,
         message: "UserId, orgId and confirmation are required",
       });
     }
 
-    const result = await acceptOrganisation(orgId, confirmation, userId);
+    const result = await acceptService(orgId, confirmation, userId);
+
     return res.status(200).json({
       success: true,
-      message: "Organisation created successful",
+      message: "Organisation invite accepted successfully",
       data: result,
     });
   } catch (error) {
@@ -135,7 +139,7 @@ export const acceptOrganisation = async (req: Request, res: Response) => {
       message:
         error instanceof Error
           ? error.message
-          : "Something went wrong while Accepting organisation invite request",
+          : "Something went wrong while accepting organisation invite request",
     });
   }
 };

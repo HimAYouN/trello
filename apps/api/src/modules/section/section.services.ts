@@ -4,6 +4,7 @@ export const postSectionService = async (boardId: string, title: string) => {
   const existingSection = await prisma.section.findFirst({
     where: {
       boardId,
+      title,
     },
   });
 
@@ -20,6 +21,7 @@ export const postSectionService = async (boardId: string, title: string) => {
 
   return {
     section: {
+      id: section.id,
       title: section.title,
       boardId: section.boardId,
     },
@@ -27,14 +29,14 @@ export const postSectionService = async (boardId: string, title: string) => {
 };
 
 export const deleteSectionService = async (sectionId: string) => {
-  const existingSection = await prisma.section.findFirst({
+  const existingSection = await prisma.section.findUnique({
     where: {
       id: sectionId,
     },
   });
 
   if (!existingSection) {
-    throw new Error("Section does not exists");
+    throw new Error("Section does not exist");
   }
 
   const section = await prisma.section.delete({
@@ -52,28 +54,24 @@ export const deleteSectionService = async (sectionId: string) => {
   };
 };
 
-
-
-export const getSectionService = async (id: string) =>{
-    const board = await prisma.board.findFirst({
+export const getSectionService = async (boardId: string) => {
+  const board = await prisma.board.findUnique({
     where: {
-      id,
+      id: boardId,
     },
   });
 
   if (!board) {
-    throw new Error("Board does not exists");
+    throw new Error("Board does not exist");
   }
 
-  const section = await prisma.section.findMany({
+  const sections = await prisma.section.findMany({
     where: {
-      boardId: id,
+      boardId,
     },
   });
 
   return {
-    section: {
-      section,
-    },
+    sections,
   };
-}
+};

@@ -27,7 +27,8 @@ export const authenticate = (
       token,
       process.env.JWT_SECRET as string
     ) as JwtPayload;
-
+    // console.log("DECODED VALUE: ___________________________")
+    // console.log(decoded)
     req.user = decoded;
 
     next();

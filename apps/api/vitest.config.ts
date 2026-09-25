@@ -1,11 +1,11 @@
-// apps/api/vitest.config.ts
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    environment: "node",
+    environment: 'node',
     globals: true,
-    setupFiles: ["./src/tests/setup.ts"],
-    testTimeout: 15000, // real DB calls can be slower than mocks
+    setupFiles: ['./src/tests/setup.ts'],
+    testTimeout: 15000, // DB calls can be slow on first connection
+    fileParallelism: false, // avoid multiple test files racing on the same DB
   },
 });

@@ -10,6 +10,7 @@ export const createBoardService = async (
       title,
     },
   });
+
   if (existingBoard) {
     throw new Error("Board with same title already exists");
   }
@@ -31,19 +32,35 @@ export const createBoardService = async (
 };
 
 export const deleteBoardService = async (id: string) => {
-  const baord = await prisma.board.findFirst({
+  const board = await prisma.board.findUnique({
     where: {
       id,
     },
   });
 
-  //Leaving this Here because we need to review out DB schema again, As board can be deleted bu a user who is admin or have admin permisions
+  if (!board) {
+    throw new Error("No board with this id exists");
+  }
+
+  await prisma.board.delete({
+    where: {
+      id,
+    },
+  });
+
+  return {
+    board: {
+      id: board.id,
+      title: board.title,
+      organisationId: board.organisationId,
+    },
+  };
 };
 
-export const getBoardsService = async (id: string) => {
+export const getBoardsService = async (organisationId: string) => {
   const boards = await prisma.board.findMany({
     where: {
-      organisationId: id,
+      organisationId,
     },
   });
 
@@ -53,7 +70,7 @@ export const getBoardsService = async (id: string) => {
 };
 
 export const getBoardService = async (id: string) => {
-  const board = await prisma.board.findFirst({
+  const board = await prisma.board.findUnique({
     where: {
       id,
     },
@@ -62,7 +79,14 @@ export const getBoardService = async (id: string) => {
   if (!board) {
     throw new Error("No board with this id exists");
   }
+
   return {
-    board,
+    board: {
+      id: board.id,
+      title: board.title,
+      organisationId: board.organisationId,
+      createdAt: board.createdAt,
+      updatedAt: board.updatedAt,
+    },
   };
 };

@@ -10,7 +10,8 @@
     "dev": "nodemon --exec tsx src/index.ts",
     "start": "node src/index.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "pretest": "cd ../../packages/db && pnpm prisma migrate deploy"
   },
   "dependencies": {
     "@repo/db": "workspace:*",

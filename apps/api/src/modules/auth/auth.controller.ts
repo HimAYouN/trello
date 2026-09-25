@@ -3,7 +3,7 @@ import { loginService, registerService } from "./auth.services.ts";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    // console.log("**********WE HAVE BEEN HIT**********")
+
     const { email, password, name } = req.body;
 
     if (!email || !password || !name) {

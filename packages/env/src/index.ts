@@ -27,6 +27,7 @@ const envSchema = z.object({
   JWT_ACCESS_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
   CLIENT_URL: z.string(),
+  WS_SERVER_PORT: z.coerce.number().default(8080),
 });
 
 export const env = envSchema.parse(process.env);

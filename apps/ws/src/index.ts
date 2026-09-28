@@ -1,21 +1,44 @@
-import { WebSocketServer } from "ws";
-import { handleConnection } from "./handlers/connection";
-import { startHeartbeat } from "./handlers/heartbeat";
-import {env} from "@repo/env"
+import http from "node:http";
+import path from "node:path";
 
-const wss = new WebSocketServer({ port: env.WS_PORT });
-startHeartbeat(wss);
+import express from "express";
+import { Server } from "socket.io";
+import { env } from "@repo/env";
+import cors from "cors";
 
-wss.on("connection", (socket, req) => {
-  console.log("Starting ...");
-  const url = new URL(req.url ?? "", "http://localhost");
-  const boardId = url.searchParams.get("boardId");
-  const userId = ""/* from verified JWT, as discussed earlier */;
+async function main() {
+  const PORT = env.WS_SERVER_PORT ?? 4001;
 
-  if (!boardId) return socket.close(4000, "boardId required");
+  const app = express();
+  const server = http.createServer(app);
 
-  (socket as any).isAlive = true;
-  socket.on("pong", () => { (socket as any).isAlive = true; });
+  const io = new Server(server, {
+    cors: { origin: true },
+  });
+  
+  // io.attach(server);
 
-  handleConnection(socket, userId, boardId);
-});
+  io.on("connection", (socket) => {
+    console.log(`Socket connected: ${socket.id}`);
+
+    socket.on("client:button:clicked", (data) => {
+      console.log("CLICKED");
+      console.log(`[Socket:${socket.id}]:client:button:clicked`, data);
+    });
+  });
+
+  // app.use(express.static(path.resolve('./public)));
+
+  app.get("/api/v1/health", (_, res) => {
+    res.status(200).json({
+      health: "GOOD",
+      message: " Server is working . . .",
+    });
+  });
+
+  server.listen(PORT, () => {
+    console.log(`WS Server is listening on http://localhost:${PORT}`);
+  });
+}
+
+main();

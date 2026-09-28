@@ -34,7 +34,7 @@ import sectionRouter from './modules/section/section.route.ts'
 import userRouter from './modules/user/user.route.ts'
 import { authenticate } from "./modules/auth/auth.middleware.ts";
 
-app.use('/api/v1/health', (_, res)=>{
+app.get('/api/v1/health', (_, res)=>{
   res.status(200).json({
     health: "GOOD", 
     message: " Server is working . . ."

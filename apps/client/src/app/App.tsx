@@ -1,25 +1,10 @@
+import { Providers } from "./providers";
+import AppRouter from "./router";
 
-import { io } from "socket.io-client";
-
-const socket = io("http://localhost:8080");
-
-
-function App() {
- 
-   const handleEvent = ()=>{
-    console.log("CLICKED")
-    socket.emit("client:button:clicked", 'true')
-   }
-
+export default function App() {
   return (
-    <main>
-      <h1>HELLO</h1>
-      <button onClick={handleEvent}>SEND EVENT</button>
-      <ul>
-        
-      </ul>
-    </main>
+    <Providers>
+      <AppRouter />
+    </Providers>
   );
 }
-
-export default App;

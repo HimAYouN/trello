@@ -1,0 +1,17 @@
+import { Routes, Route } from "react-router-dom";
+// import ProtectedRoute from "@/features/auth/ProtectedRoute";
+import LoginPage from "@/pages/LoginPage";
+// import RegisterPage from "@/pages/RegisterPage";
+// import OrganisationsPage from "@/pages/OrganisationsPage";
+
+export default function AppRouter() {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      {/* <Route path="/register" element={<RegisterPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/organisations" element={<OrganisationsPage />} />
+      </Route> */}
+    </Routes>
+  );
+}

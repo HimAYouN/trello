@@ -31,6 +31,7 @@ import orgRouter from './modules/organisation/org.route.ts'
 import boardRouter from './modules/board/board.route.ts'
 import issueRouter from './modules/issue/issue.route.ts'
 import sectionRouter from './modules/section/section.route.ts'
+import userRouter from './modules/user/user.route.ts'
 import { authenticate } from "./modules/auth/auth.middleware.ts";
 
 app.use('/api/v1/health', (_, res)=>{
@@ -44,14 +45,14 @@ app.use('/auth', authRouter)
 app.use(authenticate)
 app.use('/', orgRouter)
 app.use('/', boardRouter)
+app.use('/', userRouter)
 // app.use('/test', boardRouter)
 app.use('/', issueRouter)
 app.use('/', sectionRouter)
-// app.use('/', userRouter)
 
 export {app};
 
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(process.env.PORT, () => console.log('listening'));
+  // app.listen(process.env.PORT, () => console.log('listening'));
 }

@@ -1,0 +1,4 @@
+bg="#ddceb4"
+textColor="#30210b"
+borderColor="#30210b"
+shadow="#30210b"

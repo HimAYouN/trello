@@ -57,6 +57,79 @@ describe('POST /organisation', () => {
   });
 });
 
+describe('GET /organisation', () => {
+  it('returns organisations created by the authenticated user', async () => {
+    const created = await request(app)
+      .post('/organisation')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'List Org', description: 'Listed org' });
+
+    const res = await request(app)
+      .get('/organisation')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: created.body.data.id, name: 'List Org' }),
+    ]));
+  });
+
+  it('rejects requests without authentication', async () => {
+    const res = await request(app).get('/organisation');
+
+    expect(res.status).toBe(401);
+  });
+});
+
+describe('GET /organisation/:id', () => {
+  it('returns an organisation created by the authenticated user', async () => {
+    const created = await request(app)
+      .post('/organisation')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Detail Org', description: 'Org details' });
+
+    const res = await request(app)
+      .get(`/organisation/${created.body.data.id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toMatchObject({
+      id: created.body.data.id,
+      name: 'Detail Org',
+      description: 'Org details',
+    });
+  });
+
+  it('returns not found for an organisation that does not exist or belong to the user', async () => {
+    const res = await request(app)
+      .get('/organisation/nonexistent-id')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('does not reveal an organisation owned by another user', async () => {
+    const email = `other-org-owner-${Date.now()}@example.com`;
+    await request(app).post('/auth/register').send({ name: 'Other Owner', email, password: 'secret123' });
+    const loginRes = await request(app).post('/auth/login').send({ email, password: 'secret123' });
+    const otherToken = loginRes.body.data.token;
+    const created = await request(app)
+      .post('/organisation')
+      .set('Authorization', `Bearer ${otherToken}`)
+      .send({ name: 'Private Org', description: 'Not owned by the requester' });
+
+    const res = await request(app)
+      .get(`/organisation/${created.body.data.id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+});
+
 describe('DELETE /organisation/:id', () => {
   let orgId: string;
 

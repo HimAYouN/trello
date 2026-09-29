@@ -3,8 +3,65 @@ import {
   acceptService,
   createOrgService,
   deleteOrgService,
+  getOrganisationService,
+  getOrganisationsService,
   inviteService,
 } from "./org.services";
+
+export const getOrganisations = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
+    }
+
+    const result = await getOrganisationsService(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Organisations fetched successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Get Organisations error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Something went wrong while fetching organisations",
+    });
+  }
+};
+
+export const getOrganisation = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
+    }
+
+    const result = await getOrganisationService(id, userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Organisation fetched successfully",
+      data: result,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "Organisation not found") {
+      return res.status(404).json({ success: false, message: error.message });
+    }
+
+    console.error("Get Organisation error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Something went wrong while fetching organisation",
+    });
+  }
+};
 
 export const createOrganisation = async (req: Request, res: Response) => {
   try {

@@ -1,5 +1,24 @@
 import { prisma } from "@repo/db";
 
+export const getOrganisationsService = async (userId: string) => {
+  return prisma.organisation.findMany({
+    where: { ownerId: userId },
+    orderBy: { createdAt: "desc" },
+  });
+};
+
+export const getOrganisationService = async (id: string, userId: string) => {
+  const organisation = await prisma.organisation.findFirst({
+    where: { id, ownerId: userId },
+  });
+
+  if (!organisation) {
+    throw new Error("Organisation not found");
+  }
+
+  return organisation;
+};
+
 export const createOrgService = async (
   name: string,
   description: string,

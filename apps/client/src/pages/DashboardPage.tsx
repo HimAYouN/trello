@@ -5,8 +5,7 @@ import {
   Gamepad2,
   LayoutDashboard,
   LogOut,
-  Plus,
-  Trash2,
+  Building2,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
@@ -64,14 +63,9 @@ export default function DashboardPage() {
               <p className="dashboard-section-kicker">YOUR SPACE</p>
               <h2 id="dashboard-overview-title">Workspace overview</h2>
             </div>
-            <div className="dashboard-organisation-actions">
-              <Link to="/organisations/new" className="dashboard-overview-link">
-                <Plus aria-hidden="true" size={16} /> Create organisation
-              </Link>
-              <Link to="/organisations/delete" className="dashboard-overview-link dashboard-delete-link">
-                <Trash2 aria-hidden="true" size={15} /> Delete by ID
-              </Link>
-            </div>
+            <Link to="/organisations" className="dashboard-overview-link">
+              <Building2 aria-hidden="true" size={16} /> View organisations
+            </Link>
           </div>
 
           <div className="dashboard-panels">

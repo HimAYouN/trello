@@ -4,7 +4,7 @@ import DashboardPage from "@/pages/DashboardPage";
 import HomePage from "@/pages/HomePage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
-import { CreateOrganisationPage, DeleteOrganisationPage } from "@/pages/OrganisationsPage";
+import { DeleteOrganisationPage, OrganisationsPage } from "@/pages/OrganisationsPage";
 
 export default function AppRouter() {
   return (
@@ -14,7 +14,7 @@ export default function AppRouter() {
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/organisations/new" element={<CreateOrganisationPage />} />
+        <Route path="/organisations" element={<OrganisationsPage />} />
         <Route path="/organisations/delete" element={<DeleteOrganisationPage />} />
       </Route>
     </Routes>

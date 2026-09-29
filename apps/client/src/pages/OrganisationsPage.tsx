@@ -1,17 +1,15 @@
 import { useState } from "react";
 import { isAxiosError } from "axios";
-import { useMutation } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Building2, Trash2 } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, Building2, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { apiClient } from "@/lib/apiClient";
 
-type CreatedOrganisation = {
+type Organisation = {
   id: string;
-  organisation: {
-    id: string;
-    name: string;
-    description: string;
-  };
+  name: string;
+  description: string | null;
+  createdAt: string;
 };
 
 type DeletedOrganisation = {
@@ -64,20 +62,34 @@ function OrganisationPageFrame({
         {children}
         <footer className="dashboard-footer">
           <span>TEAM QUEST <span aria-hidden="true">/</span> ORGANISATIONS</span>
-          <Link to="/organisations/new">CREATE AN ORGANISATION <ArrowRight aria-hidden="true" size={12} /></Link>
+          <span>YOUR TEAM SPACES</span>
         </footer>
       </div>
     </main>
   );
 }
 
-export function CreateOrganisationPage() {
+export function OrganisationsPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const queryClient = useQueryClient();
+  const organisations = useQuery({
+    queryKey: ["organisations"],
+    queryFn: async () => {
+      const response = await apiClient.get<{ data: Organisation[] }>("/organisation");
+      return response.data.data;
+    },
+  });
   const createOrganisation = useMutation({
     mutationFn: async (values: { name: string; description: string }) => {
-      const response = await apiClient.post<{ data: CreatedOrganisation }>("/organisation", values);
-      return response.data.data;
+      await apiClient.post("/organisation", values);
+    },
+    onSuccess: async () => {
+      setName("");
+      setDescription("");
+      setShowCreateForm(false);
+      await queryClient.invalidateQueries({ queryKey: ["organisations"] });
     },
   });
 
@@ -88,33 +100,30 @@ export function CreateOrganisationPage() {
 
   return (
     <OrganisationPageFrame
-      eyebrow="WORKSPACE / CREATE"
-      title="Start a new organisation."
-      description="Give your team a shared home for its boards, sections, and work."
+      eyebrow="YOUR WORKSPACES"
+      title="Organisations."
+      description="Your team spaces, all in one place. Create a new organisation or manage an existing one."
     >
-      <section className="organisation-form-panel" aria-label="Create organisation">
-        {createOrganisation.data ? (
-          <div className="organisation-result" role="status">
-            <span className="organisation-result-icon"><Building2 aria-hidden="true" size={22} /></span>
-            <p className="organisation-form-kicker">ORGANISATION CREATED</p>
-            <h2>{createOrganisation.data.organisation.name}</h2>
-            <p>{createOrganisation.data.organisation.description}</p>
-            <div className="organisation-id-row">
-              <span>Organisation ID</span>
-              <code>{createOrganisation.data.id}</code>
-            </div>
-            <Link
-              className="organisation-danger-link"
-              to={`/organisations/delete?id=${encodeURIComponent(createOrganisation.data.id)}`}
-            >
-              <Trash2 aria-hidden="true" size={16} />
-              Delete this organisation
-            </Link>
-            <button className="organisation-secondary-button" type="button" onClick={() => createOrganisation.reset()}>
-              Create another
-            </button>
+      <section className="organisation-list-panel" aria-label="Your organisations">
+        <div className="organisation-list-heading">
+          <div>
+            <p className="organisation-form-kicker">WORKSPACE DIRECTORY</p>
+            <h2>Your organisations</h2>
           </div>
-        ) : (
+          <button
+            className="organisation-submit organisation-create-toggle"
+            type="button"
+            onClick={() => {
+              setShowCreateForm((visible) => !visible);
+              createOrganisation.reset();
+            }}
+          >
+            <Plus aria-hidden="true" size={17} />
+            {showCreateForm ? "Close form" : "Create organisation"}
+          </button>
+        </div>
+
+        {showCreateForm && (
           <form className="organisation-form" onSubmit={handleSubmit}>
             <p className="organisation-form-kicker">NEW WORKSPACE</p>
             <label htmlFor="organisation-name">Organisation name</label>
@@ -148,6 +157,45 @@ export function CreateOrganisationPage() {
             </button>
           </form>
         )}
+
+        {organisations.isPending && (
+          <p className="organisation-list-state"><RefreshCw aria-hidden="true" size={16} /> Loading organisations...</p>
+        )}
+        {organisations.isError && (
+          <div className="organisation-list-state organisation-list-error" role="alert">
+            <p>{getErrorMessage(organisations.error)}</p>
+            <button type="button" onClick={() => void organisations.refetch()}>Try again</button>
+          </div>
+        )}
+        {organisations.isSuccess && organisations.data.length === 0 && (
+          <div className="organisation-empty-state">
+            <span className="organisation-result-icon"><Building2 aria-hidden="true" size={22} /></span>
+            <h3>No organisations yet</h3>
+            <p>Create a workspace to start bringing your team’s work together.</p>
+          </div>
+        )}
+        {organisations.isSuccess && organisations.data.length > 0 && (
+          <ul className="organisation-list">
+            {organisations.data.map((organisation) => (
+              <li className="organisation-list-item" key={organisation.id}>
+                <span className="organisation-list-icon"><Building2 aria-hidden="true" size={19} /></span>
+                <div className="organisation-list-copy">
+                  <h3>{organisation.name}</h3>
+                  <p>{organisation.description || "No description"}</p>
+                  <code>{organisation.id}</code>
+                </div>
+                <Link
+                  className="organisation-row-delete"
+                  to={`/organisations/delete?id=${encodeURIComponent(organisation.id)}`}
+                  aria-label={`Delete ${organisation.name}`}
+                  title="Delete organisation"
+                >
+                  <Trash2 aria-hidden="true" size={17} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </OrganisationPageFrame>
   );
@@ -157,6 +205,7 @@ export function DeleteOrganisationPage() {
   const [searchParams] = useSearchParams();
   const [organisationId, setOrganisationId] = useState(searchParams.get("id") ?? "");
   const [confirmationText, setConfirmationText] = useState("");
+  const queryClient = useQueryClient();
   const deleteOrganisation = useMutation({
     mutationFn: async (id: string) => {
       const response = await apiClient.delete<{ data: DeletedOrganisation }>(
@@ -164,6 +213,9 @@ export function DeleteOrganisationPage() {
         { data: { confirmation: true } },
       );
       return response.data.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["organisations"] });
     },
   });
 
@@ -185,9 +237,9 @@ export function DeleteOrganisationPage() {
             <p className="organisation-form-kicker">ORGANISATION DELETED</p>
             <h2>{deleteOrganisation.data.name}</h2>
             <p>The organisation and its memberships have been removed.</p>
-            <Link className="organisation-submit organisation-link-button" to="/dashboard">
+            <Link className="organisation-submit organisation-link-button" to="/organisations">
               <ArrowLeft aria-hidden="true" size={17} />
-              Return to dashboard
+              Back to organisations
             </Link>
           </div>
         ) : (

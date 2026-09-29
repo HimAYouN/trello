@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isAxiosError } from "axios";
 import { Link } from "react-router-dom";
 import { useLogin } from "../hooks";
 import { Button } from "@/components/ui/8bit/button";
@@ -9,13 +10,16 @@ export default function LoginForm() {
   const { mutate, isPending, error } = useLogin();
 
   const handleSubmit = (e: React.FormEvent) => {
+    console.log(email, password)
     e.preventDefault();
     mutate({ email, password });
   };
 
-  const errorMessage =
-    (error as any)?.response?.data?.message ??
-    (error ? "Something went wrong. Please try again." : null);
+  const errorMessage = isAxiosError<{ message?: string }>(error)
+    ? error.response?.data?.message ?? "Something went wrong. Please try again."
+    : error
+      ? "Something went wrong. Please try again."
+      : null;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">

@@ -1,12 +1,11 @@
 import { Navigate } from "react-router-dom";
 import { Gamepad2 } from "lucide-react";
-import LoginForm from "@/features/auth/components/LoginForm";
+import RegisterForm from "@/features/auth/components/RegisterForm";
 import { useAuthStore } from "@/store/authStore";
 
-export default function LoginPage() {
-  const token = useAuthStore((s) => s.token);
+export default function RegisterPage() {
+  const token = useAuthStore((state) => state.token);
 
-  // already logged in? skip the login screen
   if (token) return <Navigate to="/" replace />;
 
   return (
@@ -23,16 +22,16 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
-        <h1 className="login-title mb-2 text-2xl sm:text-3xl">Player, ready?</h1>
+        <h1 className="login-title mb-2 text-2xl sm:text-3xl">Join the party.</h1>
         <p className="mb-7 text-sm text-[var(--pixel-muted)]">
-          Sign in to jump back into your board.
+          Create your account and get your next project moving.
         </p>
-        <LoginForm />
+        <RegisterForm />
         <div className="login-status mt-8 flex items-center justify-between border-t-2 border-dashed pt-4 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--pixel-muted)]">
-          <span>Co-op mode</span>
+          <span>New player</span>
           <span className="flex items-center gap-2">
             <span className="login-online-dot" aria-hidden="true" />
-            Server online
+            Ready to begin
           </span>
         </div>
       </section>

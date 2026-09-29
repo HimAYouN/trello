@@ -28,6 +28,7 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string(),
   CLIENT_URL: z.string(),
   WS_SERVER_PORT: z.coerce.number().default(8080),
+  VITE_API_URL: z.string().url(),
 });
 
 export const env = envSchema.parse(process.env);

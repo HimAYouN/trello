@@ -11,7 +11,7 @@ export function useLogin() {
     mutationFn: loginUser,
     onSuccess: (res) => {
       setAuth(res.data.user, res.data.token);
-      navigate("/");
+      navigate("/dashboard");
     },
   });
 }

@@ -3,11 +3,13 @@ import {
   Check,
   CircleDashed,
   Clock3,
+  CircleUserRound,
   Gamepad2,
   Layers3,
   Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
 
 const lanes = [
   {
@@ -41,6 +43,8 @@ const lanes = [
 ];
 
 export default function HomePage() {
+  const token = useAuthStore((state) => state.token);
+
   return (
     <main className="home-screen min-h-screen">
       <header className="home-topbar mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
@@ -53,8 +57,17 @@ export default function HomePage() {
             <span className="home-brand-caption">CO-OP WORKSPACE</span>
           </span>
         </Link>
-        <Link to="/login" className="home-signin">
-          Sign in <ArrowRight aria-hidden="true" size={16} />
+        <Link
+          to={token ? "/dashboard" : "/login"}
+          className={token ? "home-avatar-link" : "home-signin"}
+          aria-label={token ? "Open dashboard" : "Sign in"}
+          title={token ? "Open dashboard" : undefined}
+        >
+          {token ? (
+            <CircleUserRound aria-hidden="true" size={23} />
+          ) : (
+            <>Sign in <ArrowRight aria-hidden="true" size={16} /></>
+          )}
         </Link>
       </header>
 
@@ -65,8 +78,9 @@ export default function HomePage() {
           <p className="home-lede">
             Bring plans, people, and progress together on one board.
           </p>
-          <Link to="/login" className="home-primary">
-            Enter your workspace <ArrowRight aria-hidden="true" size={17} />
+          <Link to={token ? "/dashboard" : "/login"} className="home-primary">
+            {token ? "Open dashboard" : "Enter your workspace"}
+            <ArrowRight aria-hidden="true" size={17} />
           </Link>
         </section>
 

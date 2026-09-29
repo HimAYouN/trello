@@ -7,7 +7,7 @@ export default function LoginPage() {
   const token = useAuthStore((s) => s.token);
 
   // already logged in? skip the login screen
-  if (token) return <Navigate to="/" replace />;
+  if (token) return <Navigate to="/dashboard" replace />;
 
   return (
     <main className="login-screen flex min-h-screen items-center justify-center px-4 py-10">
